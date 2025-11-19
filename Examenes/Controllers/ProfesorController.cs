@@ -103,34 +103,7 @@ namespace Examenes.Controllers
                 double? notaFinal = resultadosDelAlumno
                     .FirstOrDefault(r => r.ExamenId == idFinal)?.Nota;
 
-                string estadoSituacion;
-
-                if (curso.Finzalizado) 
-                {
-                    if (promedioParciales >= notaPromocion)
-                    {
-                        estadoSituacion = "PROMOCIONADO";
-                    }
-                    else if (promedioParciales >= notaAprobacion)
-                    {
-                        estadoSituacion = "A FINAL";
-                    }
-                    else
-                    {
-                        estadoSituacion = "RECURSA";
-                    }
-                }
-                else
-                {
-                    if (promedioParciales == null)
-                    {
-                        estadoSituacion = "Pendiente";
-                    }
-                    else
-                    {
-                        estadoSituacion = "Cursando";
-                    }
-                }
+                string estadoSituacion = CalcularEstadoAlumno(curso, promedioParciales, notaFinal);
 
                 listaAlumnosConNotas.Add(new AlumnoConNotas
                 {
@@ -138,7 +111,7 @@ namespace Examenes.Controllers
                     FechaInscripcion = inscripcion.Fecha,
                     PromedioParciales = promedioParciales,
                     NotaFinal = notaFinal,
-                    EstadoSituacion = estadoSituacion 
+                    EstadoSituacion = estadoSituacion
                 });
             }
 
@@ -150,6 +123,40 @@ namespace Examenes.Controllers
             };
 
             return View(viewModel);
+        }
+
+        private string CalcularEstadoAlumno(Curso curso, double? promedioParciales, double? notaFinal)
+        {
+            if (!curso.Finalizado)
+            {
+                return "CURSANDO";
+            }
+
+            var notaPromocion = curso.Materia.NotaDePromocion;
+            var notaAprobacion = curso.Materia.NotaDeAprobacion;
+
+            if (promedioParciales >= notaPromocion)
+            {
+                return "PROMOCIONADO";
+            }
+
+
+            if (promedioParciales >= notaAprobacion)
+            {
+                if (notaFinal != null && notaFinal >= notaAprobacion)
+                {
+                    return "APROBADO";
+                }
+
+                if (notaFinal != null && notaFinal < notaAprobacion)
+                {
+                    return "FINAL PENDIENTE";
+                }
+
+                return "A FINAL";
+            }
+
+            return "RECURSA";
         }
     }
 }

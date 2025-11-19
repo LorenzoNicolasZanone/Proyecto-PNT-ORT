@@ -1,4 +1,3 @@
-@* 1. El @model ahora apunta al ViewModel principal *@
 @model Examenes.Models.ViewModels.VerAlumnosViewModel
 
 @{
@@ -28,9 +27,9 @@
                 <tr>
                     <th>Nombre del Alumno</th>
                     <th>Legajo</th>
-                    <th>Fecha de Inscripción</th>
                     <th class="text-center">Promedio Parciales</th>
                     <th class="text-center">Nota Final</th>
+                    <th class="text-center">Situación</th>
                 </tr>
             </thead>
             <tbody>
@@ -43,14 +42,27 @@
                         <td>
                             @item.Alumno.Usuario.Legajo
                         </td>
-                        <td>
-                            @item.FechaInscripcion.ToString("dd/MM/yyyy")
+                        <td class="text-center">
+                            @(item.PromedioParciales == 0 ? "-" : (item.PromedioParciales?.ToString("F2") ?? "N/A"))
                         </td>
                         <td class="text-center">
-                            <strong>@(item.PromedioParciales?.ToString("F2") ?? "-")</strong>
+                            @(item.NotaFinal == 0 ? "-" : (item.NotaFinal?.ToString("F2") ?? "N/A"))
                         </td>
+
                         <td class="text-center">
-                            <strong>@(item.NotaFinal?.ToString("F2") ?? "-")</strong>
+                            @{
+                                var badgeClass = "bg-secondary";
+
+                                if (item.EstadoSituacion == "PROMOCIONADO" || item.EstadoSituacion == "APROBADO")
+                                    badgeClass = "bg-success";
+                                else if (item.EstadoSituacion == "A FINAL")
+                                    badgeClass = "bg-warning text-dark";
+                                else if (item.EstadoSituacion == "RECURSA")
+                                    badgeClass = "bg-danger";
+                                else if (item.EstadoSituacion == "CURSANDO" || item.EstadoSituacion == "FINAL PENDIENTE")
+                                    badgeClass = "bg-primary ";
+                            }
+                            <span class="badge @badgeClass">@item.EstadoSituacion</span>
                         </td>
                     </tr>
                 }

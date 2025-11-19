@@ -10,6 +10,7 @@ namespace Examenes.Models.ViewModels
         public DateTime FechaInscripcion { get; set; }
         public double? PromedioParciales { get; set; }
         public double? NotaFinal { get; set; }
+        public string EstadoSituacion { get; set; }
     }
 
     public class VerAlumnosViewModel

@@ -24,10 +24,10 @@ DBCC CHECKIDENT ('[Materias]', RESEED, 0);
 
 SET IDENTITY_INSERT [Materias] ON;
 INSERT INTO [Materias] (Id, Nombre, NotaDeAprobacion, NotaDePromocion) VALUES
-(1, 'Programación I', 4.0, 7.0),
-(2, 'Base de Datos II', 4.0, 7.0),
-(3, 'Laboratorio III', 4.0, 7.0),
-(4, 'Metodologías Ágiles', 4.0, 7.0);
+(1, 'Programación I', 40.0, 70.0),
+(2, 'Base de Datos II', 40.0, 70.0),
+(3, 'Laboratorio III', 40.0, 70.0),
+(4, 'Metodologías Ágiles', 40.0, 70.0);
 SET IDENTITY_INSERT [Materias] OFF;
 
 SET IDENTITY_INSERT [Usuarios] ON;
@@ -214,12 +214,10 @@ INSERT INTO [ExamenesAlumnos] (Id, Nota, CantRespCorrectas, FechaEntrega, Estado
 (1, 100.0, 2, '2024-04-15 10:30:00', 1, 6, 1),
 (2, 50.0, 1, '2024-04-15 10:45:00', 1, 7, 1),
 (3, 100.0, 2, '2024-05-30 10:30:00', 1, 6, 2),
-(4, 100.0, 2, '2024-05-30 10:45:00', 1, 7, 2),
-(5, 100.0, 2, '2024-07-10 15:00:00', 1, 6, 3),
+(4, 50.0, 1, '2024-05-30 10:45:00', 1, 7, 2),
 (6, 0.0, 0, '2024-07-10 15:10:00', 1, 7, 3),
 (7, 100.0, 2, '2024-04-20 12:00:00', 1, 8, 4),
 (8, 50.0, 1, '2024-04-20 12:15:00', 1, 9, 4),
-(9, 50.0, 1, '2024-07-12 19:00:00', 1, 8, 5),
 (10, 50.0, 1, '2024-07-12 19:15:00', 1, 9, 5),
 (11, 100.0, 2, '2025-10-20 10:30:00', 1, 1, 6),
 (12, 50.0, 1, '2025-10-20 10:45:00', 1, 2, 6),
@@ -242,16 +240,12 @@ INSERT INTO [RespuestasAlumnos] (Id, ExamenAlumnoId, OpcionId) VALUES
 (6, 3, 14),
 (7, 4, 10),
 (8, 4, 14),
-(9, 5, 17),
-(10, 5, 22),
 (11, 6, 18),
 (12, 6, 23),
 (13, 7, 27),
 (14, 7, 30),
 (15, 8, 27),
 (16, 8, 31),
-(17, 9, 34),
-(18, 9, 38),
 (19, 10, 36),
 (20, 10, 40),
 (21, 11, 41),
