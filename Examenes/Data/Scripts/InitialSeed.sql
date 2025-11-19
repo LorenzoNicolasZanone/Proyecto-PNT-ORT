@@ -67,13 +67,13 @@ INSERT INTO [Alumnos] (Id, UsuarioId) VALUES
 SET IDENTITY_INSERT [Alumnos] OFF;
 
 SET IDENTITY_INSERT [Cursos] ON;
-INSERT INTO [Cursos] (Id, Nombre, MateriaId, ProfesorId) VALUES
-(1, '2024 - Programación I', 1, 1),
-(2, '2024 - Base de Datos II', 2, 1),
-(3, '2024 - Laboratorio III', 3, 2),
-(4, '2025 - Programación I', 1, 1),
-(5, '2025 - Base de Datos II', 2, 1),
-(6, '2025 - Metodologías Ágiles', 4, 2);
+INSERT INTO [Cursos] (Id, Nombre, MateriaId, ProfesorId, Finalizado) VALUES
+(1, '2024 - Programación I', 1, 1, 1), 
+(2, '2024 - Base de Datos II', 2, 1, 1),
+(3, '2024 - Laboratorio III', 3, 2, 1), 
+(4, '2025 - Programación I', 1, 1, 0), 
+(5, '2025 - Base de Datos II', 2, 1, 0),
+(6, '2025 - Metodologías Ágiles', 4, 2, 0);
 SET IDENTITY_INSERT [Cursos] OFF;
 
 SET IDENTITY_INSERT [Examenes] ON;

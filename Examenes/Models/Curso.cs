@@ -6,7 +6,7 @@ namespace Examenes.Models
         public int Id { get; set; }
         public string Nombre { get; set; }
 
-        public Boolean Finzalizado { get; set; }
+        public Boolean Finalizado { get; set; }
 
         public int MateriaId { get; set; }
         public virtual Materia Materia { get; set; }
