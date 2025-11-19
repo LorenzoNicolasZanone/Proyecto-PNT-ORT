@@ -20,7 +20,7 @@ namespace Examenes.Controllers
         }
 
         [HttpGet]
-          [Authorize(Roles = "PROFESOR")]
+        [Authorize(Roles = "PROFESOR")]
         public async Task<IActionResult> Index()
         {
 
@@ -55,8 +55,14 @@ namespace Examenes.Controllers
         [Authorize(Roles = "PROFESOR")]
         public async Task<IActionResult> VerAlumnos(int cursoId)
         {
-            var curso = await _context.Cursos.FindAsync(cursoId);
+            var curso = await _context.Cursos
+                .Include(c => c.Materia)
+                .FirstOrDefaultAsync(c => c.Id == cursoId);
+
             if (curso == null) return NotFound();
+
+            var notaPromocion = curso.Materia.NotaDePromocion;
+            var notaAprobacion = curso.Materia.NotaDeAprobacion;
 
             var inscripciones = await _context.Inscripciones
                 .Where(i => i.CursoId == cursoId)
@@ -64,15 +70,15 @@ namespace Examenes.Controllers
                 .ToListAsync();
 
             var examenesDelCurso = await _context.Examenes
-                .Where(e => e.CursoId == cursoId 
-                        && e.Publicado 
+                .Where(e => e.CursoId == cursoId
+                        && e.Publicado
                         && e.Fin <= DateTime.Now)
                 .ToListAsync();
 
             var idsParciales = examenesDelCurso
                 .Where(e => e.Tipo == TipoExamen.PARCIAL)
                 .Select(e => e.Id).ToList();
-            
+
             var idFinal = examenesDelCurso
                 .FirstOrDefault(e => e.Tipo == TipoExamen.FINAL)?.Id;
 
@@ -91,18 +97,48 @@ namespace Examenes.Controllers
                 var notasParciales = resultadosDelAlumno
                     .Where(r => idsParciales.Contains(r.ExamenId) && r.Nota != null)
                     .Select(r => r.Nota.Value).ToList();
-                
+
                 double? promedioParciales = notasParciales.Any() ? notasParciales.Average() : (double?)null;
 
                 double? notaFinal = resultadosDelAlumno
                     .FirstOrDefault(r => r.ExamenId == idFinal)?.Nota;
+
+                string estadoSituacion;
+
+                if (curso.Finzalizado) 
+                {
+                    if (promedioParciales >= notaPromocion)
+                    {
+                        estadoSituacion = "PROMOCIONADO";
+                    }
+                    else if (promedioParciales >= notaAprobacion)
+                    {
+                        estadoSituacion = "A FINAL";
+                    }
+                    else
+                    {
+                        estadoSituacion = "RECURSA";
+                    }
+                }
+                else
+                {
+                    if (promedioParciales == null)
+                    {
+                        estadoSituacion = "Pendiente";
+                    }
+                    else
+                    {
+                        estadoSituacion = "Cursando";
+                    }
+                }
 
                 listaAlumnosConNotas.Add(new AlumnoConNotas
                 {
                     Alumno = inscripcion.Alumno,
                     FechaInscripcion = inscripcion.Fecha,
                     PromedioParciales = promedioParciales,
-                    NotaFinal = notaFinal
+                    NotaFinal = notaFinal,
+                    EstadoSituacion = estadoSituacion 
                 });
             }
 
@@ -112,7 +148,7 @@ namespace Examenes.Controllers
                 CursoNombre = curso.Nombre,
                 Alumnos = listaAlumnosConNotas.OrderBy(a => a.Alumno.Usuario.Nombre).ToList()
             };
-            
+
             return View(viewModel);
         }
     }
