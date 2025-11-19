@@ -32,6 +32,7 @@ SET IDENTITY_INSERT [Materias] OFF;
 
 SET IDENTITY_INSERT [Usuarios] ON;
 INSERT INTO [Usuarios] (Id, Username, Password, Nombre, Legajo) VALUES
+
 (1, 'profesor_admin', 'admin123', 'Profesor Admin', 'P-001'),
 (2, 'profesora_b', 'admin123', 'Profesora B', 'P-002'),
 (3, 'ana_gomez', 'test123', 'Ana Gómez', 'A-101'),
@@ -43,7 +44,9 @@ INSERT INTO [Usuarios] (Id, Username, Password, Nombre, Legajo) VALUES
 (9, 'diego_lopez', 'test123', 'Diego López', 'A-202'),
 (10, 'elena_moreno', 'test123', 'Elena Moreno', 'A-203'),
 (11, 'martin_soto', 'test123', 'Martín Soto', 'A-204'),
-(12, 'laura_silva', 'test123', 'Laura Silva', 'A-205');
+(12, 'laura_silva', 'test123', 'Laura Silva', 'A-205'),
+(13, 'ignacio_zanone', 'test1234', 'Ignacio Zanone', 'A-999');
+
 SET IDENTITY_INSERT [Usuarios] OFF;
 
 SET IDENTITY_INSERT [Profesores] ON;
@@ -63,7 +66,9 @@ INSERT INTO [Alumnos] (Id, UsuarioId) VALUES
 (7, 9),
 (8, 10),
 (9, 11),
-(10, 12);
+(10, 12),
+(11, 13);
+
 SET IDENTITY_INSERT [Alumnos] OFF;
 
 SET IDENTITY_INSERT [Cursos] ON;
@@ -206,7 +211,9 @@ INSERT INTO [Inscripciones] (Id, Fecha, AlumnoId, CursoId) VALUES
 (15, '2025-08-03', 4, 6),
 (16, '2025-08-03', 5, 6),
 (17, '2025-08-03', 1, 6),
-(18, '2025-08-03', 2, 6);
+(18, '2025-08-03', 2, 6),
+(19, '2024-03-01', 11, 1),
+(20, '2024-03-01', 11, 2);
 SET IDENTITY_INSERT [Inscripciones] OFF;
 
 SET IDENTITY_INSERT [ExamenesAlumnos] ON;
@@ -227,7 +234,11 @@ INSERT INTO [ExamenesAlumnos] (Id, Nota, CantRespCorrectas, FechaEntrega, Estado
 (16, 0, 0, NULL, 0, 1, 7),
 (17, 0, 0, NULL, 0, 2, 7),
 (18, 0, 0, NULL, 0, 1, 8),
-(19, 0, 0, NULL, 0, 2, 8);
+(19, 0, 0, NULL, 0, 2, 8),
+(20, 2.0, 0, '2024-04-15 10:00:00', 1, 11, 1),
+(21, 2.0, 0, '2024-05-30 10:00:00', 1, 11, 2),
+(22, 4.0, 1, '2024-04-20 12:00:00', 1, 11, 4),
+(23, 2.0, 0, '2024-07-12 19:00:00', 1, 11, 5);
 SET IDENTITY_INSERT [ExamenesAlumnos] OFF;
 
 SET IDENTITY_INSERT [RespuestasAlumnos] ON;
@@ -255,5 +266,9 @@ INSERT INTO [RespuestasAlumnos] (Id, ExamenAlumnoId, OpcionId) VALUES
 (25, 13, 42),
 (26, 13, 46),
 (27, 14, 41),
-(28, 14, 45);
+(28, 14, 45),
+(30, 20, 1),
+(31, 20, 5),
+(32, 23, 33),
+(33, 23, 37);
 SET IDENTITY_INSERT [RespuestasAlumnos] OFF;
