@@ -1,8 +1,65 @@
-﻿@{
+﻿@model Examenes.Models.ViewModels.LoginViewModel
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="home">
+    <div class="cards">
+        <h2>Sistema de Gestión de examenes</h2>
+
+        <div class="home-card">
+            <div class="home-card-contenido">
+                <h3 class="titulo">Profesores</h3>
+                <ul>
+                    <li>Crear, modificar y eliminar exámenes para tus cursos.</li>
+                    <li>Finalizar la cursada y obtener reportes de promociones, aprobaciones y recursadas.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="home-card">
+            <div class="home-card-contenido">
+                <h3 class="titulo">Alumnos</h3>
+                <ul>
+                    <li>Rendir tus examenes parciales y finales.</li>
+                    <li>Ver resumen de todas tus cursadas.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <form asp-controller="Home" asp-action="Login" asp-controller="Auth" method="post">
+        <div class="login-form">
+            <div class="user-type-box">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <input type="radio" class="btn-check" name="Type" value="PROFESOR" id="btnradio1" autocomplete="off"
+                        checked>
+                    <label class="btn btn-outline-primary btn-lg" for="btnradio1">Soy Profesor</label>
+
+                    <input type="radio" class="btn-check" name="Type" value="ALUMNO" id="btnradio2" autocomplete="off">
+                    <label class="btn btn-outline-primary btn-lg" for="btnradio2">Soy Alumno</label>
+                </div>
+            </div>
+
+            <div class="login-form-box">
+                <h2>Iniciar sesión</h2>
+
+                @if (ViewData["Error"] != null)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @ViewData["Error"]
+                    </div>
+                }
+
+                <input type="text" id="usuario" class="form-control" placeholder="Usuario" asp-for="Username">
+
+                <input type="password" id="clave" class="form-control" asp-for="Password" placeholder="Contraseña">
+            </div>
+
+            <div class="submit-button">
+                <button type="submit" class="btn btn-success btn-lg">Ingresar</button>
+            </div>
+        </div>
+
+    </form>
 </div>

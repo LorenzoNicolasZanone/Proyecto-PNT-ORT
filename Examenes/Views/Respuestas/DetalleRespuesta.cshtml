@@ -1,0 +1,82 @@
+@model Examenes.Models.ViewModels.RespuestasDetalleViewModel
+@{
+    ViewData["Title"] = "Detalle de Respuesta";
+    var alumno = Model.ExamenAlumno.Alumno.Usuario;
+    var examen = Model.ExamenAlumno.Examen;
+}
+
+<div class="container mt-4">
+    <h1 class="dashboard-title">Detalle de Respuestas</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Revisión del Examen</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Alumno:</strong> @alumno.Nombre (Legajo: @Model.ExamenAlumno.Alumno.Usuario.Legajo)</p>
+            <p><strong>Examen:</strong> @examen.Titulo</p>
+            <p><strong>Nota Final:</strong> 
+                <strong class="fs-4 @(Model.ExamenAlumno.Nota >= examen.PorcentajeParaAprobacion ? "text-success" : "text-danger")">
+                    @Model.ExamenAlumno.Nota?.ToString("F2")
+                </strong> 
+                / 100
+            </p>
+        </div>
+    </div>
+
+    <a asp-action="Index" asp-route-examenId="@examen.Id" class="btn btn-outline-secondary mt-2 mb-4">
+        <i class="bi bi-arrow-left"></i> Volver al listado de resultados
+    </a>
+
+    <hr />
+
+    @for (int i = 0; i < Model.PreguntasCompletas.Count; i++)
+    {
+        var item = Model.PreguntasCompletas[i];
+        var pregunta = item.Pregunta;
+        int numeroPregunta = i + 1;
+
+        <div class="mb-4">
+            <h5 class="mb-1"><strong>@numeroPregunta) @pregunta.Enunciado</strong></h5>
+            
+            <ul class="list-group mt-3">
+                @foreach (var opcion in pregunta.Opciones.OrderBy(o => o.Id))
+                {
+                    // --- Lógica para colorear la opción ---
+                    string cssClass = "";
+                    string icon = "bi-circle";
+                    string label = "";
+
+                    bool esLaOpcionCorrecta = opcion.EsCorrecta;
+                    bool esLaOpcionQueEligio = opcion.Id == item.OpcionSeleccionadaId;
+
+                    if (esLaOpcionCorrecta)
+                    {
+                        // 1. Es la opción CORRECTA
+                        cssClass = "list-group-item-success"; // Fondo verde
+                        icon = "bi-check-circle-fill";
+                        label = "(Correcta)";
+                    }
+                    else if (esLaOpcionQueEligio)
+                    {
+                        // 2. Es la opción que eligió, pero es INCORRECTA
+                        cssClass = "list-group-item-danger"; // Fondo rojo
+                        icon = "bi-x-circle-fill";
+                        label = "(Respuesta del alumno)";
+                    }
+
+                    if (esLaOpcionQueEligio && esLaOpcionCorrecta)
+                    {
+                        label = "(Respuesta Correcta)";
+                    }
+                    
+                    <li class="list-group-item @cssClass">
+                        <i class="bi @icon me-2"></i>
+                        @opcion.Texto
+                        <em class="ms-2">@label</em>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+</div>

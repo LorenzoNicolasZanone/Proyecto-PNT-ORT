@@ -1,0 +1,71 @@
+@model Examenes.Models.ViewModels.RespuestasViewModel
+
+@{
+    ViewData["Title"] = "Respuestas del Examen";
+}
+
+<div class="container mt-4">
+    <h1 class="dashboard-title">Resultados del Examen</h1>
+    <h4 class="dashboard-subtitle text-muted">
+        @Model.ExamenTitulo (@Model.CursoNombre)
+    </h4>
+
+    <a asp-controller="Examen" asp-action="ListadoPorCursoProfesor" asp-route-cursoId="@Model.CursoId" class="btn btn-outline-secondary mt-2 mb-4">
+        <i class="bi bi-arrow-left"></i> Volver al listado de exámenes
+    </a>
+
+    @if (!Model.ResultadosAlumnos.Any())
+    {
+        <div class="alert alert-info" role="alert">
+            Ningún alumno ha rendido este examen todavía.
+        </div>
+    }
+    else
+    {
+        <table class="table table-hover align-middle cursos-table">
+            <thead class="table-dark">
+                <tr>
+                    <th>Alumno</th>
+                    <th>Legajo</th>
+                    <th>Estado</th>
+                    <th class="text-center">Respuestas Correctas</th>
+                    <th class="text-center">Nota Final</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var resultado in Model.ResultadosAlumnos)
+                {
+                    <tr>
+                        <td>
+                            <strong>@resultado.Alumno.Usuario.Nombre</strong>
+                        </td>
+                        <td>
+                            @resultado.Alumno.Usuario.Legajo
+                        </td>
+                        <td>
+                            @{
+                                var badgeClass = resultado.Estado == EstadoExamen.APROBADO ? "bg-success" : (resultado.Estado == EstadoExamen.AUSENTE || resultado.Estado == EstadoExamen.DESAPROBADO) ? "bg-danger" : "bg-secondary";
+                            }
+                            <span class="badge @badgeClass">
+                                @resultado.Estado
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            @(resultado.CantRespCorrectas ?? 0)
+                        </td>
+                        <td class="text-center">
+                            <strong>@(resultado.Nota?.ToString("F2") ?? "-")</strong>
+                        </td>
+                        <td class="text-end">
+                            <a asp-action="DetalleRespuesta" asp-route-examenAlumnoId="@resultado.Id"
+                               class="btn btn-primary btn-sm @(resultado.Estado != EstadoExamen.APROBADO && resultado.Estado != EstadoExamen.DESAPROBADO ? "disabled" : "")">
+                                Ver Detalle
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

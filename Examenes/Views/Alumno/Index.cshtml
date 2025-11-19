@@ -1,0 +1,52 @@
+@model IEnumerable<Examenes.Models.Inscripcion>
+
+@{
+    ViewData["Title"] = "Mis Cursos";
+}
+
+<div class="container mt-4">
+    <h1 class="dashboard-title">Mis Cursos</h1>
+    <p class="dashboard-subtitle">Aquí puedes ver los cursos en los que estás inscripto y acceder a tus exámenes.</p>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info" role="alert">
+            <i class="bi bi-info-circle-fill"></i> Aún no estás inscripto en ningún curso.
+        </div>
+    }
+    else
+    {
+        <table class="table table-hover align-middle cursos-table">
+            <thead class="table-dark">
+                <tr>
+                    <th>Curso</th>
+                    <th>Materia</th>
+                    <th>Profesor</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var inscripcion in Model)
+                {
+                    <tr>
+                        <td>
+                            <strong>@inscripcion.Curso.Nombre</strong>
+                        </td>
+                        <td>
+                            @inscripcion.Curso.Materia.Nombre
+                        </td>
+                        <td>
+                            @inscripcion.Curso.Profesor.Usuario.Nombre
+                        </td>
+                        <td class="text-end">
+                            <a asp-controller="Examen" asp-action="ListadoPorCursoAlumno" asp-route-cursoId="@inscripcion.CursoId"
+                               class="btn btn-primary btn-sm">
+                                Ver Exámenes
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

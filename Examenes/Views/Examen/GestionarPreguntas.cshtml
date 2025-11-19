@@ -1,0 +1,137 @@
+@model Examenes.Models.ViewModels.GestionarPreguntasViewModel
+
+@{
+    ViewData["Title"] = "Constructor de Examen";
+}
+
+<h1 class="dashboard-title">Constructor de Examen</h1>
+<h4 class="dashboard-subtitle text-muted">Editando borrador: @Model.ExamenTitulo</h4>
+<hr />
+
+<h3 style="margin-bottom:20px;margin-top:40px">Preguntas Creadas (@Model.PreguntasExistentes.Count)</h3>
+
+@if (!Model.PreguntasExistentes.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle-fill"></i> Aún no hay preguntas en este examen.
+    </div>
+}
+else
+{
+    <div class="list-group mb-4">
+        @for (int i = 0; i < Model.PreguntasExistentes.Count; i++)
+        {
+            var pregunta = Model.PreguntasExistentes[i];
+            int numeroPregunta = i + 1;
+            <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">@numeroPregunta) @pregunta.Enunciado</h5>
+                    <form asp-action="EliminarPregunta" method="post"
+                        onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta pregunta?');">
+
+                        <input type="hidden" name="preguntaId" value="@pregunta.Id" />
+                        <input type="hidden" name="examenId" value="@Model.ExamenId" />
+
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
+                    </form>
+                </div>
+                <ul class="list-unstyled mt-2 mb-0">
+                    @{
+                        var opcionesOrdenadas = pregunta.Opciones.OrderBy(o => !o.EsCorrecta).ToList();
+                    }
+
+                    @for (int j = 0; j < opcionesOrdenadas.Count; j++)
+                    {
+                        var opcion = opcionesOrdenadas[j];
+                        char letraOpcion = (char)('a' + j);
+                        {
+                            if (opcion.EsCorrecta)
+                            {
+                                <li class="text-success">
+                                    <strong>
+                                        <i class="bi bi-check-circle-fill"></i>@letraOpcion) @opcion.Texto (Correcta)
+                                    </strong>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="text-muted">
+                                    <i class="bi bi-circle"></i>@letraOpcion) @opcion.Texto
+                                </li>
+                            }
+                        }
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+}
+
+<hr class="my-5" />
+
+<h3>Nueva Pregunta</h3>
+
+<form asp-action="AgregarPregunta" method="post">
+    <input type="hidden" asp-for="ExamenId" />
+    <input type="hidden" asp-for="CursoId" />
+
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="NuevoEnunciado" class="form-label">Enunciado de la Pregunta</label>
+        <textarea asp-for="NuevoEnunciado" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="NuevoEnunciado" class="text-danger"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="OpcionCorrecta" class="form-label">Opción Correcta</label>
+            <input asp-for="OpcionCorrecta" class="form-control is-valid" />
+            <span asp-validation-for="OpcionCorrecta" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="Opcion2" class="form-label">Opción Incorrecta 2</label>
+            <input asp-for="Opcion2" class="form-control" />
+            <span asp-validation-for="Opcion2" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="Opcion3" class="form-label">Opción Incorrecta 3</label>
+            <input asp-for="Opcion3" class="form-control" />
+            <span asp-validation-for="Opcion3" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="Opcion4" class="form-label">Opción Incorrecta 4</label>
+            <input asp-for="Opcion4" class="form-control" />
+            <span asp-validation-for="Opcion4" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="d-flex w-100 justify-content-end">
+        <div class="mt-1">
+            <button type="submit" class="btn btn-primary btn-md">
+                Agregar
+            </button>
+        </div>
+    </div>
+</form>
+
+<hr class="my-4">
+
+<div class="d-flex w-100 justify-content-end">
+    <form asp-action="PublicarExamen" method="post">
+        <input type="hidden" name="examenId" value="@Model.ExamenId" />
+        <input type="hidden" name="cursoId" value="@Model.CursoId" />
+
+        <button type="submit" class="btn btn-success btn-md" disabled="@(!Model.PreguntasExistentes.Any())">
+            Publicar Examen
+        </button>
+        @if (!Model.PreguntasExistentes.Any())
+        {
+            <small class="form-text text-muted d-block mt-2">
+                Debes agregar al menos una pregunta para poder publicar el examen.
+            </small>
+        }
+    </form>
+</div>

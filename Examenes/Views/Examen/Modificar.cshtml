@@ -1,0 +1,70 @@
+@model Examenes.Models.ViewModels.NuevoExamenViewModel
+
+@{
+    ViewData["Title"] = "Modificar Examen";
+}
+
+<h1 class="dashboard-title">Modificar Examen</h1>
+<h4 class="dashboard-subtitle text-muted">Para el curso: @Model.NombreCurso</h4>
+<p>Define los datos principales del examen. Luego, podrás agregar las preguntas.</p>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-8 col-lg-6">
+
+        <form asp-action="Modificar">
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <input type="hidden" asp-for="ExamenId" />
+
+            <input type="hidden" asp-for="CursoId" />
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Titulo" class="form-label"></label>
+                <input asp-for="Titulo" class="form-control" />
+                <span asp-validation-for="Titulo" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Tipo" class="form-label"></label>
+                <select asp-for="Tipo" asp-items="Html.GetEnumSelectList<Examenes.Models.TipoExamen>()"
+                    class="form-select">
+                    <option value="">Seleccione un tipo...</option>
+                </select>
+                <span asp-validation-for="Tipo" class="text-danger"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Inicio" class="form-label"></label>
+                    <input asp-for="Inicio" class="form-control" />
+                    <span asp-validation-for="Inicio" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Fin" class="form-label"></label>
+                    <input asp-for="Fin" class="form-control" />
+                    <span asp-validation-for="Fin" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="PorcentajeParaAprobacion" class="form-label">Porcentaje para Aprobar (%)</label>
+                <input asp-for="PorcentajeParaAprobacion" class="form-control" />
+                <span asp-validation-for="PorcentajeParaAprobacion" class="text-danger"></span>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary btn-md">
+                    Guardar Cambios
+                </button>
+                <a asp-action="ListadoPorCursoProfesor" asp-route-cursoId="@Model.CursoId" class="btn btn-outline-secondary">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

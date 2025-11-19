@@ -1,0 +1,60 @@
+@* 1. El @model ahora apunta al ViewModel principal *@
+@model Examenes.Models.ViewModels.VerAlumnosViewModel
+
+@{
+    ViewData["Title"] = "Alumnos Inscriptos";
+}
+
+<div class="container mt-4">
+    <h1 class="dashboard-title">Alumnos Inscriptos</h1>
+    <h4 class="dashboard-subtitle text-muted">
+        Curso: @Model.CursoNombre
+    </h4>
+
+    <a asp-controller="Profesor" asp-action="Index" class="btn btn-outline-secondary mt-2 mb-4">
+        <i class="bi bi-arrow-left"></i> Volver a Mis Cursos
+    </a>
+
+    @if (!Model.Alumnos.Any())
+    {
+        <div class="alert alert-info" role="alert">
+            Aún no hay alumnos inscriptos en este curso.
+        </div>
+    }
+    else
+    {
+        <table class="table table-hover align-middle cursos-table">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nombre del Alumno</th>
+                    <th>Legajo</th>
+                    <th>Fecha de Inscripción</th>
+                    <th class="text-center">Promedio Parciales</th>
+                    <th class="text-center">Nota Final</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Alumnos)
+                {
+                    <tr>
+                        <td>
+                            <strong>@item.Alumno.Usuario.Nombre</strong>
+                        </td>
+                        <td>
+                            @item.Alumno.Usuario.Legajo
+                        </td>
+                        <td>
+                            @item.FechaInscripcion.ToString("dd/MM/yyyy")
+                        </td>
+                        <td class="text-center">
+                            <strong>@(item.PromedioParciales?.ToString("F2") ?? "-")</strong>
+                        </td>
+                        <td class="text-center">
+                            <strong>@(item.NotaFinal?.ToString("F2") ?? "-")</strong>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

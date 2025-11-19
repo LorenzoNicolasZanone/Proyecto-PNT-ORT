@@ -1,0 +1,109 @@
+@model Examenes.Models.ViewModels.MisExamenesViewModel
+
+@{
+    ViewData["Title"] = "Mis Exámenes";
+    var now = DateTime.Now;
+}
+
+<div class="container mt-4">
+
+    @if (TempData["Exito"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            <i class="bi bi-check-circle-fill"></i> @TempData["Exito"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> @TempData["Error"]
+        </div>
+    }
+    <h1 class="dashboard-title">Mis Exámenes</h1>
+    <h4 class="dashboard-subtitle text-muted">
+        Curso: @Model.CursoNombre
+    </h4>
+
+    <a asp-controller="Alumno" asp-action="Index" class="btn btn-outline-secondary mt-2 mb-4">
+        <i class="bi bi-arrow-left"></i> Volver a Mis Cursos
+    </a>
+
+    @if (!Model.ExamenesDelAlumno.Any())
+    {
+        <div class="alert alert-info" role="alert">
+            <i class="bi bi-info-circle-fill"></i> Aún no hay exámenes publicados para este curso.
+        </div>
+    }
+    else
+    {
+        <table class="table table-hover align-middle cursos-table">
+            <thead class="table-dark">
+                <tr>
+                    <th>Examen</th>
+                    <th>Tipo</th>
+                    <th>Inicia</th>
+                    <th>Finaliza</th>
+                    <th class="text-center">Nota</th>
+                    <th class="text-center">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var exa in Model.ExamenesDelAlumno)
+                {
+                    <tr>
+                        <td><strong>@exa.Examen.Titulo</strong></td>
+                        <td>@exa.Examen.Tipo</td>
+                        <td>@exa.Examen.Inicio.ToString("dd/MM/yyyy HH:mm") hs</td>
+                        <td>@exa.Examen.Fin.ToString("dd/MM/yyyy HH:mm") hs</td>
+                        <td class="text-center">
+                            @if (exa.Estado == EstadoExamen.APROBADO || exa.Estado == EstadoExamen.DESAPROBADO)
+                            {
+                                <strong class="@(exa.Nota >= exa.Examen.PorcentajeParaAprobacion ? "text-success" : "text-danger")">
+                                    @exa.Nota?.ToString("F2")
+                                </strong>
+                            }
+                            else
+                            {
+                                <span class="text-muted">-</span>
+                            }
+                        </td>
+                        
+                        <td class="text-center">
+                            @if (exa.Estado == EstadoExamen.APROBADO || exa.Estado == EstadoExamen.DESAPROBADO)
+                            {
+                                <a asp-action="VerResultado" asp-route-examenAlumnoId="@exa.Id" 
+                                   class="btn btn-success btn-sm">
+                                    Ver Nota
+                                </a>
+                            }
+                            else if (exa.Estado == EstadoExamen.AUSENTE)
+                            {
+                                <span class="badge bg-danger">Ausente</span>
+                            }
+                            else if (exa.Estado == EstadoExamen.PENDIENTE)
+                            {
+                                @if (now >= exa.Examen.Inicio && now <= exa.Examen.Fin)
+                                {
+                                    <a asp-action="Rendir" asp-route-examenAlumnoId="@exa.Id" 
+                                       class="btn btn-primary btn-sm">
+                                        <strong>Rendir</strong>
+                                    </a>
+                                }
+                                else if (now < exa.Examen.Inicio)
+                                {
+                                    <button class="btn btn-secondary btn-sm" disabled>
+                                        Pendiente
+                                    </button>
+                                }
+                                else 
+                                {
+                                    <span class="badge bg-danger">Ausente</span>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

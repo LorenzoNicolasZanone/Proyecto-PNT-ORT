@@ -1,0 +1,40 @@
+@model Examenes.Models.Examen
+
+@{
+    ViewData["Title"] = "Eliminar Examen";
+}
+
+<h1 classD="dashboard-title">Eliminar Examen</h1>
+<h4 class="dashboard-subtitle text-muted">Curso: @Model.Curso.Nombre</h4>
+<hr />
+
+<div class="alert alert-danger">
+    <h4 class="alert-heading"><i class="bi bi-exclamation-triangle-fill"></i> ¡Acción irreversible!</h4>
+    <p>
+        ¿Estás seguro de que deseas eliminar permanentemente el examen: 
+        <strong>"@Model.Titulo"</strong>?
+    </p>
+    <p class="mb-0">
+        Esta acción borrará el examen, todas sus preguntas, opciones y cualquier respuesta
+        de alumnos que pudiera tener (si es un borrador re-utilizado).
+    </p>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Eliminar" method="post">
+            
+            <input type="hidden" name="examenId" value="@Model.Id" />
+            <input type="hidden" name="cursoId" value="@Model.CursoId" />
+
+            <button type="submit" class="btn btn-danger btn-md">
+                Eliminar
+            </button>
+            
+            <a asp-action="ListadoPorCursoProfesor" asp-route-cursoId="@Model.CursoId" 
+               class="btn btn-outline-secondary btn-md">
+                Cancelar
+            </a>
+        </form>
+    </div>
+</div>

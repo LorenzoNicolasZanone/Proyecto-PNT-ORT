@@ -1,0 +1,64 @@
+@model Examenes.Models.ViewModels.RendirExamenViewModel
+@{
+    ViewData["Title"] = "Rindiendo Examen";
+}
+
+<div class="container mt-4">
+
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            
+            <h1 class="dashboard-title">Rindiendo: @Model.ExamenTitulo</h1>
+            <h4 class="dashboard-subtitle text-muted">@Model.CursoNombre</h4>
+
+            <div class="alert alert-warning my-4">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <strong>Atención:</strong> Una vez enviado, no podrás cambiar tus respuestas.
+                El examen se cerrará automáticamente el @Model.FechaFin.ToString("dd/MM/yyyy 'a las' HH:mm hs").
+            </div>
+
+            <form asp-action="Entregar" method="post">
+                
+                <input type="hidden" name="examenAlumnoId" value="@Model.ExamenAlumnoId" />
+
+                @for (int i = 0; i < Model.Preguntas.Count; i++)
+                {
+                    var pregunta = Model.Preguntas[i];
+                    int numeroPregunta = i + 1;
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <strong>Pregunta @numeroPregunta</strong>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">@pregunta.Enunciado</h5>
+                            
+                            <div class="list-group list-group-flush mt-3">
+                                @foreach (var opcion in pregunta.Opciones)
+                                {
+                                    <label class="list-group-item list-group-item-action">
+                                        <input class="form-check-input me-2" 
+                                               type="radio" 
+                                               name="respuestas[@pregunta.Id]" 
+                                               value="@opcion.Id" 
+                                               required />
+                                        @opcion.Texto
+                                    </label>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="d-grid gap-2 mt-4 mb-5">
+                    <button type="submit" class="btn btn-success btn-lg"
+                            onclick="return confirm('¿Estás seguro de que deseas entregar el examen? No podrás volver a editarlo.');">
+                        Entregar Examen
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>y
