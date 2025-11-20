@@ -24,7 +24,7 @@ namespace Examenes.Controllers
         public async Task<IActionResult> ListadoPorCursoProfesor(int cursoId)
         {
             var curso = await _context.Cursos
-                .Include(c => c.Materia) // Incluimos la Materia para mostrar el nombre
+                .Include(c => c.Materia)
                 .FirstOrDefaultAsync(c => c.Id == cursoId);
 
             if (curso == null)
@@ -42,7 +42,8 @@ namespace Examenes.Controllers
                 Examenes = examenes,
                 CursoId = curso.Id,
                 NombreCurso = curso.Nombre,
-                NombreMateria = curso.Materia.Nombre
+                NombreMateria = curso.Materia.Nombre,
+                Finalizado = curso.Finalizado
             };
 
             return View(viewModel);

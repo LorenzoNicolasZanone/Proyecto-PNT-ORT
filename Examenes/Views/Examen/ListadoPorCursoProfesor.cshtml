@@ -13,7 +13,8 @@
     </h4>
 
     <p class="mt-3">
-        <a asp-action="Crear" asp-route-cursoId="@Model.CursoId" class="btn btn-success">
+        <a asp-action="Crear" asp-route-cursoId="@Model.CursoId" 
+       class="btn btn-success @(Model.Finalizado ? "disabled" : "")">
             <i class="bi bi-plus-circle"></i> Nuevo Examen
         </a>
         <a asp-controller="Profesor" asp-action="Index" class="btn btn-outline-secondary">

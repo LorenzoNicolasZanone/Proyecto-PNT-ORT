@@ -6,5 +6,7 @@ namespace Examenes.Models.ViewModels
         public int CursoId { get; set; }
         public string NombreCurso { get; set; }
         public string NombreMateria { get; set; }
+
+        public Boolean Finalizado { get; set; }
     }
 }
