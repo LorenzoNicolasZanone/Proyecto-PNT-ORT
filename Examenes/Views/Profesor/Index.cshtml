@@ -24,6 +24,7 @@
                 <tr>
                     <th>Nombre del Curso</th>
                     <th>Materia</th>
+                    <th>Estado</th>
                     <th class="text-center">Inscriptos</th>
                     <th class="text-end">Acciones</th>
                 </tr>
@@ -36,18 +37,28 @@
                             <strong>@curso.Nombre</strong>
                         </td>
                         <td>
-                            @curso.Materia.Nombre 
+                            @curso.Materia.Nombre
+                        </td>
+                        <td class="text-center">
+                            @if (curso.Finalizado)
+                            {
+                                <spam class="badge bg-secondary">Cerrado</spam>
+                            }
+                            else
+                            {
+                                <spam class="badge bg-success">Activo</spam>
+                            }
                         </td>
                         <td class="text-center">
                             @curso.Inscripciones.Count()
                         </td>
                         <td class="text-end">
-                            <a asp-controller="Examen" asp-action="ListadoPorCursoProfesor" asp-route-cursoId="@curso.Id"
-                               class="btn btn-primary btn-sm">
+                            <a asp-controller="Examen" asp-action="ListadoPorCursoProfesor" asp-route-cursoId="@curso.Id" 
+                                class="btn btn-primary btn-sm">
                                 Exámenes
                             </a>
                             <a asp-controller="Profesor" asp-action="VerAlumnos" asp-route-cursoId="@curso.Id"
-                               class="btn btn-secondary btn-sm">
+                                class="btn btn-secondary btn-sm">
                                 Ver Alumnos
                             </a>
                         </td>
