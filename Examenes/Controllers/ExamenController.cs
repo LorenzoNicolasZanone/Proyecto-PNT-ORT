@@ -4,7 +4,7 @@ using Examenes.Data;
 using Microsoft.EntityFrameworkCore;
 using Examenes.Models.ViewModels;
 using Examenes.Models;
-using System.Security.Claims; 
+using System.Security.Claims;
 
 namespace Examenes.Controllers
 {
@@ -330,26 +330,54 @@ namespace Examenes.Controllers
         [Authorize(Roles = "ALUMNO")]
         public async Task<IActionResult> ListadoPorCursoAlumno(int cursoId)
         {
-            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (usuarioIdClaim == null) return Unauthorized();
+
+            var usuarioId = int.Parse(usuarioIdClaim.Value);
             var alumno = await _context.Alumnos.FirstOrDefaultAsync(a => a.UsuarioId == usuarioId);
             if (alumno == null) return Unauthorized();
 
             var curso = await _context.Cursos.FindAsync(cursoId);
             if (curso == null) return NotFound();
 
-            var examenes = await _context.ExamenesAlumnos
-                .Where(ea => ea.AlumnoId == alumno.Id 
-                        && ea.Examen.CursoId == cursoId 
-                        && ea.Examen.Publicado)
+            var resultadosExistentes = await _context.ExamenesAlumnos
+                .Where(ea => ea.AlumnoId == alumno.Id && ea.Examen.CursoId == cursoId)
                 .Include(ea => ea.Examen)
-                .OrderBy(ea => ea.Examen.Inicio)
+                .ToDictionaryAsync(ea => ea.ExamenId);
+
+            var examenesDelCurso = await _context.Examenes
+                .Where(e => e.CursoId == cursoId && e.Publicado)
                 .ToListAsync();
+
+            var listaDeExamenesAlumnos = new List<ExamenAlumno>();
+
+            foreach (var examen in examenesDelCurso)
+            {
+                if (resultadosExistentes.TryGetValue(examen.Id, out ExamenAlumno resultadoExistente))
+                {
+                    listaDeExamenesAlumnos.Add(resultadoExistente);
+                }
+                else
+                {
+                    listaDeExamenesAlumnos.Add(new ExamenAlumno
+                    {
+                        AlumnoId = alumno.Id,
+                        ExamenId = examen.Id,
+                        Examen = examen,
+                        Estado = examen.Fin > DateTime.Now ? EstadoExamen.PENDIENTE : EstadoExamen.AUSENTE,
+                        Nota = null,
+                        CantRespCorrectas = null
+                    });
+                }
+            }
 
             var viewModel = new MisExamenesViewModel
             {
                 CursoId = cursoId,
                 CursoNombre = curso.Nombre,
-                ExamenesDelAlumno = examenes
+                ExamenesDelAlumno = listaDeExamenesAlumnos
+                                        .OrderBy(ea => ea.Examen.Inicio)
+                                        .ToList()
             };
 
             return View(viewModel);
@@ -357,7 +385,7 @@ namespace Examenes.Controllers
 
         [HttpGet]
         [Authorize(Roles = "ALUMNO")]
-        public async Task<IActionResult> Rendir(int examenAlumnoId)
+        public async Task<IActionResult> Rendir(int examenId)
         {
             var now = DateTime.Now;
 
@@ -365,18 +393,45 @@ namespace Examenes.Controllers
             var alumno = await _context.Alumnos.FirstOrDefaultAsync(a => a.UsuarioId == usuarioId);
             if (alumno == null) return Unauthorized();
 
-            var examenAlumno = await _context.ExamenesAlumnos
-                .Include(ea => ea.Examen.Curso)
-                .FirstOrDefaultAsync(ea => ea.Id == examenAlumnoId);
+            var examen = await _context.Examenes
+                .Include(e => e.Curso)
+                .FirstOrDefaultAsync(e => e.Id == examenId);
 
-            if (examenAlumno == null) return NotFound();
-            
+            if (examen == null) return NotFound("Examen maestro no encontrado.");
+
+            var examenAlumno = await _context.ExamenesAlumnos
+                .FirstOrDefaultAsync(ea => ea.AlumnoId == alumno.Id && ea.ExamenId == examenId);
+
+            if (examenAlumno == null)
+            {
+                if (now > examen.Fin)
+                {
+                    TempData["Error"] = "El examen ya ha finalizado y no se puede crear el intento.";
+                    return RedirectToAction("ListadoPorCursoAlumno", new { cursoId = examen.CursoId });
+                }
+
+                examenAlumno = new ExamenAlumno
+                {
+                    AlumnoId = alumno.Id,
+                    ExamenId = examenId,
+                    Estado = EstadoExamen.PENDIENTE,
+                };
+                _context.ExamenesAlumnos.Add(examenAlumno);
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Registro ExamenAlumno {ExamenAlumnoId} creado al iniciar rendido.", examenAlumno.Id);
+            }
+ 
+            if (examenAlumno.Examen == null)
+            {
+                examenAlumno.Examen = examen;
+            }
+
             if (examenAlumno.AlumnoId != alumno.Id)
             {
-                _logger.LogWarning("Intento de acceso no autorizado al examen {ExamenAlumnoId} por el alumno {AlumnoId}", examenAlumnoId, alumno.Id);
+                _logger.LogWarning("Intento de acceso no autorizado al examen {ExamenAlumnoId} por el alumno {AlumnoId}", examenAlumno.Id, alumno.Id);
                 return Unauthorized("No tienes permiso para rendir este examen.");
             }
-            
+
             if (examenAlumno.Estado != EstadoExamen.PENDIENTE)
             {
                 TempData["Error"] = "Ya has rendido este examen.";
@@ -391,13 +446,16 @@ namespace Examenes.Controllers
 
             if (now > examenAlumno.Examen.Fin)
             {
+                examenAlumno.Estado = EstadoExamen.AUSENTE;
+                await _context.SaveChangesAsync();
+
                 TempData["Error"] = "El tiempo para rendir este examen ya ha finalizado.";
                 return RedirectToAction("ListadoPorCursoAlumno", new { cursoId = examenAlumno.Examen.CursoId });
             }
-                    
+
             var preguntas = await _context.Preguntas
             .Where(p => p.ExamenId == examenAlumno.ExamenId)
-            .Include(p => p.Opciones) // ¡Cargamos las opciones!
+            .Include(p => p.Opciones)
             .ToListAsync();
 
             var rnd = new Random();
@@ -411,7 +469,7 @@ namespace Examenes.Controllers
 
             var viewModel = new RendirExamenViewModel
             {
-                ExamenAlumnoId = examenAlumno.Id,
+                ExamenAlumnoId = examenAlumno.Id, 
                 ExamenTitulo = examenAlumno.Examen.Titulo,
                 CursoNombre = examenAlumno.Examen.Curso.Nombre,
                 Preguntas = preguntas,
@@ -451,7 +509,7 @@ namespace Examenes.Controllers
                 TempData["Error"] = "El tiempo para entregar este examen ha finalizado.";
                 return RedirectToAction("ListadoPorCursoAlumno", new { cursoId = examenAlumno.Examen.CursoId });
             }
-            
+
             var idsOpcionesSeleccionadas = respuestas.Values.ToList();
 
             int correctas = await _context.Opciones
@@ -461,8 +519,8 @@ namespace Examenes.Controllers
                 .CountAsync(p => p.ExamenId == examenAlumno.ExamenId);
 
 
-            double nota = (totalPreguntas > 0) 
-                ? (double) correctas / totalPreguntas * 100.0 
+            double nota = (totalPreguntas > 0)
+                ? (double)correctas / totalPreguntas * 100.0
                 : 0;
 
             _logger.LogInformation("Examen {ExamenAlumnoId} corregido. Correctas: {Correctas}/{Total}. Nota: {Nota}",
@@ -471,10 +529,10 @@ namespace Examenes.Controllers
             examenAlumno.Estado = nota > examenAlumno.Examen.PorcentajeParaAprobacion
                 ? EstadoExamen.APROBADO
                 : EstadoExamen.DESAPROBADO;
-                
+
             examenAlumno.FechaEntrega = now;
             examenAlumno.CantRespCorrectas = correctas;
-            examenAlumno.Nota = Math.Round(nota, 2); 
+            examenAlumno.Nota = Math.Round(nota, 2);
 
             var nuevasRespuestas = new List<RespuestaAlumno>();
             foreach (var opcionId in idsOpcionesSeleccionadas)
@@ -485,7 +543,7 @@ namespace Examenes.Controllers
                     OpcionId = opcionId
                 });
             }
-            
+
             _context.RespuestasAlumnos.AddRange(nuevasRespuestas);
             await _context.SaveChangesAsync();
 

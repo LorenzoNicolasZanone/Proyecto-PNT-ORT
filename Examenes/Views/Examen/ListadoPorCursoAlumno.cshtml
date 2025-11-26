@@ -67,12 +67,11 @@
                                 <span class="text-muted">-</span>
                             }
                         </td>
-                        
+
                         <td class="text-center">
                             @if (exa.Estado == EstadoExamen.APROBADO || exa.Estado == EstadoExamen.DESAPROBADO)
                             {
-                                <a asp-action="VerResultado" asp-route-examenAlumnoId="@exa.Id" 
-                                   class="btn btn-success btn-sm">
+                                <a asp-action="VerResultado" asp-route-examenAlumnoId="@exa.Id" class="btn btn-success btn-sm">
                                     Ver Nota
                                 </a>
                             }
@@ -84,8 +83,8 @@
                             {
                                 @if (now >= exa.Examen.Inicio && now <= exa.Examen.Fin)
                                 {
-                                    <a asp-action="Rendir" asp-route-examenAlumnoId="@exa.Id" 
-                                       class="btn btn-primary btn-sm">
+                                    <a asp-controller="Examen" asp-action="Rendir" asp-route-examenId="@exa.ExamenId"
+                                        class="btn btn-primary btn-sm">
                                         <strong>Rendir</strong>
                                     </a>
                                 }
@@ -95,7 +94,7 @@
                                         Pendiente
                                     </button>
                                 }
-                                else 
+                                else
                                 {
                                     <span class="badge bg-danger">Ausente</span>
                                 }
